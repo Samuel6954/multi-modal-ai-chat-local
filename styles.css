@@ -7,9 +7,80 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+    /* 科技感深色漸層背景，搭配固定視差 */
+    background:
+        radial-gradient(1200px 800px at 10% 0%, rgba(56, 189, 248, 0.15), transparent 60%),
+        radial-gradient(900px 600px at 90% 20%, rgba(168, 85, 247, 0.12), transparent 55%),
+        linear-gradient(135deg, #0b1020 0%, #0f172a 45%, #111827 100%);
+    background-attachment: fixed, fixed, fixed;
     min-height: 100vh;
     color: #333;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* 科技感網格與光暈覆蓋層 */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    /* 雙層網格：細線與粗線，帶有輕微移動 */
+    background-image:
+        linear-gradient(rgba(148, 163, 184, 0.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.15) 1px, transparent 1px),
+        linear-gradient(rgba(99, 102, 241, 0.2) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(99, 102, 241, 0.2) 2px, transparent 2px);
+    background-size: 30px 30px, 30px 30px, 150px 150px, 150px 150px;
+    background-position: 0 0, 0 0, 0 0, 0 0;
+    animation: gridDrift 30s linear infinite;
+    z-index: -2;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    /* 柔和霓虹光暈圈 */
+    background:
+        radial-gradient(500px 500px at 15% 85%, rgba(14, 165, 233, 0.25), transparent 60%),
+        radial-gradient(600px 600px at 85% 20%, rgba(139, 92, 246, 0.2), transparent 65%),
+        radial-gradient(800px 500px at 50% -10%, rgba(2, 132, 199, 0.2), transparent 70%);
+    filter: saturate(150%) brightness(1.1);
+    animation: glowFloat 18s ease-in-out infinite alternate;
+    z-index: -1;
+}
+
+@keyframes gridDrift {
+    0% {
+        background-position: 0 0, 0 0, 0 0, 0 0;
+    }
+
+    100% {
+        background-position: 40px 40px, 40px 40px, 200px 200px, 200px 200px;
+    }
+}
+
+@keyframes glowFloat {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: 0.9;
+    }
+
+    100% {
+        transform: translate3d(0, -10px, 0) scale(1.02);
+        opacity: 1;
+    }
+}
+
+/* 降低動效以符合無動作偏好 */
+@media (prefers-reduced-motion: reduce) {
+
+    body::before,
+    body::after {
+        animation: none !important;
+    }
 }
 
 .container {
@@ -42,6 +113,8 @@ body {
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     overflow: hidden;
+    position: relative;
+    z-index: 1;
 }
 
 /* 問答區域 */
