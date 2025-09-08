@@ -1,0 +1,33 @@
+# API 配置檔案 - 包含敏感資訊，不應推送到公開倉庫
+API_KEY_SETUP.md
+操作手冊.html
+
+# 其他常見的忽略檔案
+node_modules/
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 日誌檔案
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 依賴目錄
+jspm_packages/
+
+# 可選的 npm 快取目錄
+.npm
+
+# 可選的 eslint 快取
+.eslintcache
+
+# 微軟的 VSCode 設定
+.vscode/
+
+# 系統檔案
+.DS_Store
+Thumbs.db
