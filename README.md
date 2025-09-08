@@ -19,11 +19,9 @@
 ```
 AiModel/
 ├── index.html          # 主要HTML頁面
-├── styles.css          # CSS樣式檔案（ChatGPT風格）
+├── styles.css          # CSS樣式檔案
 ├── script.js           # JavaScript功能邏輯（Markdown渲染）
 ├── config.js           # 統一配置檔案（包含所有API Key）
-├── API_KEY_SETUP.md    # API Key配置說明
-├── 操作手冊.html        # 完整操作手冊
 └── README.md           # 說明文件
 ```
 
@@ -54,7 +52,7 @@ const API_KEYS = {
 
 | 模型 | 獲取地址 | 說明 |
 |------|----------|------|
-| **OpenAI GPT** | [OpenAI Platform](https://platform.openai.com/api-keys) | 支援GPT-4、GPT-3.5等模型 |
+| **OpenAI GPT** | [OpenAI Platform](https://platform.openai.com/api-keys) | 支援GPT-5、支援GPT-4、GPT-3.5等模型 |
 | **DeepSeek** | [DeepSeek Platform](https://platform.deepseek.com/) | 支援Chat和Reasoner模型 |
 | **Gemini** | [Google AI Studio](https://makersuite.google.com/app/apikey) | 支援Gemini Pro等模型 |
 | **Claude** | [Anthropic Console](https://console.anthropic.com/) | 支援Claude 3系列模型 |
