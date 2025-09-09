@@ -5,8 +5,8 @@
 const API_KEYS = {
     openai: 'YOUR_openai_KEY',
     claude: 'YOUR_CLAUDE_API_KEY',
-    gemini: 'YOUR_GEMINI_API_KEY',
-    deepseek: 'YOUR_deepseek_API_KEY'
+    gemini: 'YOUR_gemini_API_KEY',
+    deepseek: 'YOUR_DEEPSEEK_API_KEY'
 };
 
 // 將 API_KEYS 設定為全域變數，供 script.js 使用
@@ -68,8 +68,8 @@ const customModelConfigs = {
 
     // Gemini 配置
     gemini: {
-        endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent',
-        model: 'gemini-pro',
+        endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent',
+        model: 'gemini-2.5-pro',
         headers: {
             'Content-Type': 'application/json'
         },

@@ -65,7 +65,7 @@ const modelConfigs = {
         }
     },
     gemini: {
-        endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent',
+        endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent',
         headers: {
             'Content-Type': 'application/json'
         }
@@ -831,7 +831,23 @@ async function sendMessageToAllModels() {
                 addToConversationHistoryOnly(model, 'assistant', response);
             } catch (error) {
                 console.error(`發送訊息到 ${model} 時發生錯誤:`, error);
-                const errorMessage = `發送訊息時發生錯誤: ${error.message}`;
+                let errorMessage = `發送訊息時發生錯誤: ${error.message}`;
+
+                // 為特定錯誤添加解決建議
+                if (error.message.includes('配額超限') || error.message.includes('429')) {
+                    errorMessage += `\n\n**解決建議：**\n`;
+                    if (model === 'gemini') {
+                        errorMessage += `• 檢查 Google Cloud Console 中的 Gemini API 配額設置\n`;
+                        errorMessage += `• 確認您的計費帳戶已啟用並有足夠的配額\n`;
+                        errorMessage += `• 考慮升級到付費計劃以獲得更高配額\n`;
+                        errorMessage += `• 等待配額重置（通常是每分鐘或每小時）\n`;
+                        errorMessage += `• 訪問：https://ai.google.dev/gemini-api/docs/rate-limits`;
+                    } else {
+                        errorMessage += `• 請稍後再試，避免過於頻繁的請求\n`;
+                        errorMessage += `• 檢查該 API 的速率限制設置`;
+                    }
+                }
+
                 addMessageToTab(model, 'assistant', errorMessage);
                 // 添加錯誤訊息到對話歷史
                 addToConversationHistoryOnly(model, 'assistant', errorMessage);
@@ -932,7 +948,8 @@ async function callAIAPI(modelType, message, imageFiles = []) {
 
         case 'gemini':
             headers = config.headers;
-            endpoint = config.endpoint;
+            // 動態構建 Gemini 端點
+            endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
             requestBody = createGeminiRequestBody(model, message, imageFiles);
             // Gemini需要API金鑰作為查詢參數
             const url = new URL(endpoint);
@@ -959,7 +976,22 @@ async function callAIAPI(modelType, message, imageFiles = []) {
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            throw new Error(`API錯誤: ${response.status} - ${errorData.message || response.statusText}`);
+            console.error(`${modelType} API 錯誤詳情:`, errorData);
+
+            // 處理特定的錯誤類型
+            if (response.status === 429) {
+                if (modelType === 'gemini') {
+                    throw new Error(`Gemini API 配額超限 (429): 您已超過當前配額限制。請檢查您的 Google Cloud 計費設置和配額限制。詳細信息：${errorData.error?.message || errorData.message || response.statusText}`);
+                } else {
+                    throw new Error(`API 速率限制 (429): 請求過於頻繁，請稍後再試。詳細信息：${errorData.error?.message || errorData.message || response.statusText}`);
+                }
+            } else if (response.status === 403) {
+                throw new Error(`API 權限錯誤 (403): 請檢查您的 API 金鑰是否正確且具有必要的權限。詳細信息：${errorData.error?.message || errorData.message || response.statusText}`);
+            } else if (response.status === 401) {
+                throw new Error(`API 認證錯誤 (401): API 金鑰無效或已過期。詳細信息：${errorData.error?.message || errorData.message || response.statusText}`);
+            } else {
+                throw new Error(`API錯誤: ${response.status} - ${errorData.error?.message || errorData.message || response.statusText}`);
+            }
         }
 
         const data = await response.json();
@@ -1060,9 +1092,11 @@ function createGeminiRequestBody(model, message, imageFiles = []) {
 
     // 將歷史記錄轉換為Gemini格式
     history.forEach(msg => {
+        // Gemini 只支援 'user' 和 'model' 角色，將 'assistant' 轉換為 'model'，其他都轉換為 'user'
+        const role = msg.role === 'assistant' ? 'model' : 'user';
         contents.push({
             parts: [{ text: msg.content }],
-            role: msg.role === 'assistant' ? 'model' : 'user'
+            role: role
         });
     });
 
@@ -1088,7 +1122,13 @@ function createGeminiRequestBody(model, message, imageFiles = []) {
     });
 
     return {
-        contents: contents
+        contents: contents,
+        generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 2000
+        }
     };
 }
 
@@ -1188,9 +1228,11 @@ function showStatus(message, type = 'success') {
     statusMessage.className = `status-message ${type}`;
     statusMessage.classList.remove('hidden');
 
+    // 對於錯誤訊息，顯示更長時間
+    const displayTime = type === 'error' ? 8000 : 3000;
     setTimeout(() => {
         statusMessage.classList.add('hidden');
-    }, 3000);
+    }, displayTime);
 }
 
 // 錯誤處理
